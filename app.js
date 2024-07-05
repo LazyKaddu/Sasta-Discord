@@ -6,8 +6,7 @@ const session = require('express-session');
 const passport = require('passport');
 const PORT = process.env.PORT || 8005
 
-// importing API routers
-const userRouter = require('./routers/User-Routers/usersRouter');
+// importing API router
 const ApiRouters = require('./routers/ApiRouters');
 
 
@@ -40,10 +39,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
-// Authenticaions
-app.use('/user/action', userRouter);
 
 // api end points
 app.use('/api', ApiRouters);

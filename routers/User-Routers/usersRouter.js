@@ -4,6 +4,7 @@ const passport = require('passport');
 const localStrategy = require('passport-local');
 const upload = require('../../utils/multer-setup');
 const userModel = require('../../models/user-model');
+const authController = require('../../controllers/authController');
 passport.use(new localStrategy(userModel.authenticate()));
 
 
@@ -26,13 +27,22 @@ router.post('/register', function(req, res){
   }
 })
 
+router.post('/login', authController.login);
 
-router.post('/login', passport.authenticate('local'), function(req, res) {
-  if (req.user) {
-    return res.status(200).json({success : 'User Logged In'});
+router.post('/logout', authController.logout);
+
+
+router.get('/get-user', async (req, res) => {
+  try {
+    const user = await userModel.findById(req.session.passport.user);
+    if (user) 
+      return res.status(200).json({message: 'User Found', user});
+    res.status(400).json({message: 'No User Found'});
+  } catch {
+    res.status(500).json({message: 'Error Logging In'});
   }
-  res.status(500).json({error : 'Logged Failed'});;
 });
 
 
-module.exports = router; 
+
+module.exports = router;
