@@ -1,14 +1,28 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const cors = require("cors");
+const http = require('http');
+const socketIo = require("socket.io");
 // const db = require("./config/mongoose-connection");
-const userRouter = require('./routers/User-Routers/userRouter');
+const userRouter = require('./routers/User-Routers/usersRouter');
 const ApiRouters = require('./routers/ApiRouters');
 const passport = require('passport');
 const session = require('express-session');
+const initializeSocket = require("./utils/socket-setup");
 const PORT = process.env.PORT || 8005
 
 const app = express();
+
+//socket server
+const server = http.createServer(app);
+const io = socketIo(server,{
+    cors:{
+        origin: "http://localhost:3000",
+        methords: ["GET","POST"]
+    }
+})
+
 
 // session
 app.use(session({
@@ -37,6 +51,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors())
 
 
 // Authenticaions
@@ -48,6 +63,8 @@ app.use('/api', ApiRouters);
 app.get('/',(req,res)=>{
     res.send("hey");
 })
+
+initializeSocket(io);
 
 // listen
 app.listen(PORT, ()=>{
