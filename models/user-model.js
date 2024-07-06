@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     profileImg: String,
+    joinedServers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Server' }],
     createdAt: { type: Date, default: Date.now }
 });
 
