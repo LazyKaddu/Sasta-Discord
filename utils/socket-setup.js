@@ -10,14 +10,14 @@ function initializeSocket(io){
             socket.join(chanelId);
             socket.userId = userId;
             socket.chanelId = chanelId;
-            console.log('${userid} joined group ${groupId}');
+            console.log(`${userId} joined group ${groupId}`);
             const message = await Message.find({ chanelId }).sort("timestamp").exec();
             socket.emit('existing message',message)
         })
 
         socket.on('leave group',({userId,chanelId})=>{
             socket.leave(chanelId)
-            console.log('${userid} left group ${groupId}');
+            console.log(`${userid} left group ${groupId}`);
         })
 
         socket.on('chat message',async ({userId,chanelId,message})=>{
