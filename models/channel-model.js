@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
 const channelSchema = new mongoose.Schema({
-    username: String,
-    email: String,
-    password: String,
-    profileImg: String,
+    name: { type: String },
+    server: { type: mongoose.Schema.Types.ObjectId, ref: 'Server' },
+    messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Channel", channelSchema)
+module.exports = mongoose.model('Channel', channelSchema);
