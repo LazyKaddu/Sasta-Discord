@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-const db = require("./config/mongoose-connection");
+// const db = require("./config/mongoose-connection");
 const userRouter = require('./routers/usersRouter');
 const ApiRouters = require('./routers/ApiRouters');
 const passport = require('passport');
@@ -45,6 +45,9 @@ app.use('/user/action', userRouter);
 // api end points
 app.use('/api', ApiRouters);
 
+app.get('/',(req,res)=>{
+    res.send("hey");
+})
 
 // listen
 app.listen(PORT, ()=>{
