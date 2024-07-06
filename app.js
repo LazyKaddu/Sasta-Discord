@@ -1,13 +1,9 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-// const db = require("./config/mongoose-connection");
-const userRouter = require('./routers/usersRouter');
-const ApiRouters = require('./routers/ApiRouters');
 const passport = require('passport');
 const db = require("./config/mongoose-connection");
 const session = require('express-session');
-const passport = require('passport');
 const PORT = process.env.PORT || 8005
 
 // importing API router
