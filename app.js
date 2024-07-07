@@ -10,26 +10,39 @@ const ApiRouters = require('./routers/ApiRouters');
 const passport = require('passport');
 const session = require('express-session');
 const initializeSocket = require("./utils/socket-setup");
-const PORT = process.env.PORT || 8005
+const PORT = process.env.PORT || 4000
 
 const app = express();
 
-//socket server
 const server = http.createServer(app);
+
+app.server = server;
+//socket server
+ 
 const io = socketIo(server,{
     cors:{
-        origin: "http://localhost:3000",
+        origin: "http://localhost:5173",
         methords: ["GET","POST"]
     }
 })
 
 
-// session
-app.use(session({
-  resave: false,
-  saveUninitialized: false,
-  secret: 'Some random shit'
-}));
+
+//session
+
+const sessionMiddleware = session({
+    resave: false,
+    saveUninitialized: false,
+    secret: 'Some random shit'
+  });
+  app.use(sessionMiddleware);
+  
+
+io.use((socket, next) => {
+    sessionMiddleware(socket.request, {}, next);
+  });
+
+
 
 
 // passport configuration 
@@ -67,6 +80,6 @@ app.get('/',(req,res)=>{
 initializeSocket(io);
 
 // listen
-app.listen(PORT, ()=>{
+server.listen(PORT, ()=>{
     console.log(`app is running in ${PORT}`);
 });
