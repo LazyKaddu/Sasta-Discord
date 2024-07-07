@@ -10,7 +10,7 @@ function initializeSocket(io) {
       socket.join(channelId);
       socket.userId = userId;
       socket.channelId = channelId;
-      console.log(`${userId} joined channel ${groupId}`);
+      console.log(`${userId} joined channel ${channelId}`);
       const message = await Message.find({ channel: channelId })
         .sort("createdAt")
         .exec();
