@@ -1,5 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const Message = require("../models/message-model");
+const userModel = require("../models/user-model");
+const channelModel = require('../models/channel-model');
 const groups = {};
 
 function initializeSocket(io) {
@@ -10,16 +12,28 @@ function initializeSocket(io) {
       socket.join(channelId);
       socket.userId = userId;
       socket.channelId = channelId;
+
+      try{
+        const user = await userModel.findById(userId);
+        const channel = await channelModel.findById(channelId);
+      } catch {
+        console.log('error in join group');
+      }
+
       console.log(`${userId} joined channel ${channelId}`);
-      const message = await Message.find({ channel: channelId })
-        .sort("createdAt")
-        .exec();
+      const message = await Message
+        .find({ channel: channelId })
       socket.emit("existing message", message);
     });
 
-    socket.on("leave group", ({ userId, channelId }) => {
+    socket.on("leave group", async ({ userId, channelId }) => {
       socket.leave(channelId);
-      console.log(`${userId} left channel ${channelId}`);
+      try{
+        const channel = await channelModel.findById(channelId);
+      } catch {
+        const user = await userModel.findById(userId);
+        console.log(`${userId} left channel ${channelId}`);
+      }
     });
 
     socket.on("chat message", async ({ userId, channelId, message }) => {

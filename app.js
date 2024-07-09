@@ -8,17 +8,18 @@ const db = require("./config/mongoose-connection");
 const userRouter = require('./routers/User-Routers/usersRouter');
 const ApiRouters = require('./routers/ApiRouters');
 const passport = require('passport');
+const localStrategy = require('passport-local');
+const userModel = require('./models/user-model');
 const session = require('express-session');
 const initializeSocket = require("./utils/socket-setup");
 const PORT = process.env.PORT || 4000
 
 const app = express();
-
 const server = http.createServer(app);
-
 app.server = server;
-//socket server
- 
+
+
+//socket server 
 const io = socketIo(server,{
     cors:{
         origin: "http://localhost:5173",
@@ -26,28 +27,24 @@ const io = socketIo(server,{
     }
 })
 
-
-
 //session
-
 const sessionMiddleware = session({
-    resave: false,
-    saveUninitialized: false,
-    secret: 'Some random shit'
-  });
-  app.use(sessionMiddleware);
+  resave: false,
+  saveUninitialized: false,
+  secret: 'Some random shit'
+});
+app.use(sessionMiddleware);
   
 
 io.use((socket, next) => {
-    sessionMiddleware(socket.request, {}, next);
-  });
-
-
+  sessionMiddleware(socket.request, {}, next);
+});
 
 
 // passport configuration 
 app.use(passport.initialize());
 app.use(passport.session());
+passport.use(new localStrategy(userModel.authenticate()));
 passport.serializeUser( (user, done) => {
     done(null, user.id);
 });

@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const localStrategy = require('passport-local');
 const upload = require('../../utils/multer-setup');
 const userModel = require('../../models/user-model');
 const authController = require('../../controllers/authController');
-passport.use(new localStrategy(userModel.authenticate()));
 
 
 router.post('/register', async function(req, res){
