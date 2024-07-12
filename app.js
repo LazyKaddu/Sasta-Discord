@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+require('dotenv').config();
 const cors = require("cors");
 const http = require('http');
 const socketIo = require("socket.io");
@@ -23,6 +24,7 @@ app.server = server;
 const io = socketIo(server,{
     cors:{
         origin: "http://localhost:5173",
+        credentials: true,
         methords: ["GET","POST"]
     }
 })
@@ -34,7 +36,7 @@ const sessionMiddleware = session({
   secret: 'Some random shit'
 });
 app.use(sessionMiddleware);
-  
+app.use(cookieParser());
 
 io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, next);
@@ -42,26 +44,28 @@ io.use((socket, next) => {
 
 
 // passport configuration 
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new localStrategy(userModel.authenticate()));
-passport.serializeUser( (user, done) => {
-    done(null, user.id);
-});
-passport.deserializeUser( (user, done) =>  {
-    done(null, {
-        provider: user.provider,
-        id: user.provider_id
-    });
-});
+// app.use(passport.initialize());
+// app.use(passport.session());
+// passport.use(new localStrategy(userModel.authenticate()));
+// passport.serializeUser( (user, done) => {
+//     done(null, user.id);
+// });
+// passport.deserializeUser( (user, done) =>  {
+//     done(null, {
+//         provider: user.provider,
+//         id: user.provider_id
+//     });
+// });
 
 
 // middlewares
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 
 
 // Authenticaions

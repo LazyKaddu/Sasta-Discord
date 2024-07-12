@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 const serverModel = require("../../models/server-model");
 const userModel = require("../../models/user-model");
-
+const isLoggedIn = require('../../middlewares/is-Logged-In');
+ 
 router.get("/all", async (req, res) => {
   try {
+    console.log('In server/all API, req.cookies is - ', req.cookies.token);
     const allServers = await serverModel
       .find()
       .populate(["owner", "members", "channels"]);
@@ -19,10 +21,10 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.post('/create', async (req, res) => {
+router.post('/create', isLoggedIn, async (req, res) => {
   try {
-    const { name, maxMembers, userId } = req.body;
-    const user = await userModel.findById(userId);
+    const { name, maxMembers } = req.body;
+    const user = await userModel.findById(req.user._id);
     const server = await serverModel
       .create({
         name : name,
