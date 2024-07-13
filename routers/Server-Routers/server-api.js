@@ -6,7 +6,7 @@ const isLoggedIn = require('../../middlewares/is-Logged-In');
  
 router.get("/all", async (req, res) => {
   try {
-    console.log('In server/all API, req.cookies is - ', req.cookies.token);
+    console.log('In server/all API, req.cookies is - ', req.cookies);
     const allServers = await serverModel
       .find()
       .populate(["owner", "members", "channels"]);

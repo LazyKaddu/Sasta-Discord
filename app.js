@@ -19,6 +19,7 @@ const app = express();
 const server = http.createServer(app);
 app.server = server;
 
+app.use(cookieParser());
 
 //socket server 
 const io = socketIo(server,{
@@ -36,7 +37,6 @@ const sessionMiddleware = session({
   secret: 'Some random shit'
 });
 app.use(sessionMiddleware);
-app.use(cookieParser());
 
 io.use((socket, next) => {
   sessionMiddleware(socket.request, {}, next);
@@ -75,7 +75,7 @@ app.use('/user/action', userRouter);
 app.use('/api', ApiRouters);
 
 app.get('/',(req,res)=>{
-    res.send("hey");
+    res.sendFile(path.join(__dirname,"dist/index.html"));
 })
 
 // socket initialize
