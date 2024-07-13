@@ -71,11 +71,11 @@ exports.login = async (req, res, next) => {
     }
 
     bcrypt.compare(password, user.password, (err, result) => {
-      if (err) return res.json({ message: "Error occured! try Again." });
+      if (err) return res.json({ error: "Error occured! try Again." });
 
       if (result) {
         const token = generateToken(user);
-        res.cookie("token", token, { httpOnly: true, sameSite: 'none', });
+        res.cookie("token", token, { httpOnly: true, sameSite: 'Strict', secure: true });
         console.log('cookie token after login', token)
         return res.status(200).json({ message: "Logged in successfully", user });
       } else {
