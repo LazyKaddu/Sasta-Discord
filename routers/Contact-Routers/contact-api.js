@@ -5,14 +5,14 @@ const nodeMailer = require('nodemailer');
 
 
 
-router.get('/contact', async(req,res)=>{
+router.post('/contact', async(req,res)=>{
     const { name, email, message } = req.body;
 
     const transporter = nodeMailer.createTransport({
         service: 'gmail',
         auth:{
             user: 'mehengadiscord@gmail.com',
-            pass: ''
+            pass: process.env.PASSWORD,
         }
     });
     
