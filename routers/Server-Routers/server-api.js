@@ -6,14 +6,17 @@ const isLoggedIn = require('../../middlewares/is-Logged-In');
  
 router.get("/all", async (req, res) => {
   try {
-    console.log('In server/all API, req.cookies is - ', req.cookies);
+    // console.log('In server/all API, req.cookies is - ', req.cookies);
     const allServers = await serverModel
       .find()
       .populate(["owner", "members", "channels"]);
+      console.log(allServers);
 
     if (allServers) {
+      console.log(allServers)
       return res.json({ allServers });
     }
+    console.log(allServers);
     return res.json({ error: "No Servers Found" });
   } catch (error) {
     console.error(error);
@@ -43,6 +46,22 @@ router.post('/create', isLoggedIn, async (req, res) => {
   }
 })
 
+router.post('/join',isLoggedIn,async(req,res)=>{
+  try{
+    const {serverId} = req.body;
+    const user = await userModel.findById(req.user._id);
+    const server = await serverModel.findById(serverId);
+    server.members.push(req.user._id);
+    user.joinedServers.push(server._id);
+    await user.save();
+    await server.save();
 
+    res.json({success:'successfully joined'})
+
+  }catch(err){
+    console.log(err);
+    res.json({ error: 'error occured' });
+  }
+})
 
 module.exports = router;
