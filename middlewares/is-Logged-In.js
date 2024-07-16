@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const userModel = require('../models/user-model');
 
 module.exports = async (req, res, next) => {
-    console.log('req.cookies in middlware ', req.cookies)
     if (!req.cookies.token) {
         return res.json({error : 'you need to login first'});
     }

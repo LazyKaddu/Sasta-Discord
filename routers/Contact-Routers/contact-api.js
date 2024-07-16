@@ -12,7 +12,7 @@ router.post('/contact', async(req,res)=>{
         service: 'gmail',
         auth:{
             user: 'mehengadiscord@gmail.com',
-            pass: process.env.PASSWORD,
+            pass: 'Nlts*i@thNkB#iehhAsgiaahi',
         }
     });
     
@@ -23,13 +23,17 @@ router.post('/contact', async(req,res)=>{
         text: `name - ${name} email - ${email} says - ${message} at - ${Date.now}`
     };
 
-    transporter.sendMail(mailoption, (error,info)=>{
+    await transporter.sendMail(mailoption, (error,info)=>{
         if(error){
+            console.log(error)
             res.json({ error : 'mail not send'});
         }
-        else if (info){
+        else{
+            console.log("send message");
             res.json({ success : info });
         }
     })
 
 })
+
+module.exports = router;

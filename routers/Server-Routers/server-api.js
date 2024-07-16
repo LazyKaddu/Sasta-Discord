@@ -10,16 +10,12 @@ router.get("/all", async (req, res) => {
     const allServers = await serverModel
       .find()
       .populate(["owner", "members", "channels"]);
-      console.log(allServers);
 
     if (allServers) {
-      console.log(allServers)
       return res.json({ allServers });
     }
-    console.log(allServers);
     return res.json({ error: "No Servers Found" });
   } catch (error) {
-    console.error(error);
     return res.json({ error: "Error Occured" });
   }
 });
@@ -41,7 +37,6 @@ router.post('/create', isLoggedIn, async (req, res) => {
 
     res.json({ success: 'Server created', server});
   }catch (err) {
-    console.log(err)
     res.json({ error: 'Error occured'});
   }
 })
@@ -59,7 +54,6 @@ router.post('/join',isLoggedIn,async(req,res)=>{
     res.json({success:'successfully joined'})
 
   }catch(err){
-    console.log(err);
     res.json({ error: 'error occured' });
   }
 })
