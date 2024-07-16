@@ -76,7 +76,6 @@ exports.login = async (req, res, next) => {
       if (result) {
         const token = generateToken(user);
         res.cookie("token", token, { httpOnly: true, sameSite: 'Strict', secure: true });
-        console.log('cookie token after login', token)
         return res.status(200).json({ message: "Logged in successfully", user });
       } else {
         res.json({ message: "Username or Password is Incorrect" });

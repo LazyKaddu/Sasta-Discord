@@ -6,7 +6,7 @@ const isLoggedIn = require('../../middlewares/is-Logged-In');
  
 router.get("/all", isLoggedIn, async (req, res) => {
   try {
-    console.log('In server/all API, req.cookies is - ', req.cookies);
+    // console.log('In server/all API, req.cookies is - ', req.cookies);
     const allServers = await serverModel
       .find()
       .populate(["owner", "members", "channels"]);
@@ -16,7 +16,6 @@ router.get("/all", isLoggedIn, async (req, res) => {
     }
     return res.json({ error: "No Servers Found" });
   } catch (error) {
-    console.error(error);
     return res.json({ error: "Error Occured" });
   }
 });
@@ -38,11 +37,25 @@ router.post('/create', isLoggedIn, async (req, res) => {
 
     res.json({ success: 'Server created', server});
   }catch (err) {
-    console.log(err)
     res.json({ error: 'Error occured'});
   }
 })
 
+router.post('/join',isLoggedIn,async(req,res)=>{
+  try{
+    const {serverId} = req.body;
+    const user = await userModel.findById(req.user._id);
+    const server = await serverModel.findById(serverId);
+    server.members.push(req.user._id);
+    user.joinedServers.push(server._id);
+    await user.save();
+    await server.save();
 
+    res.json({success:'successfully joined'})
+
+  }catch(err){
+    res.json({ error: 'error occured' });
+  }
+})
 
 module.exports = router;
