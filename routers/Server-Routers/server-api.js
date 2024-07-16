@@ -4,7 +4,7 @@ const serverModel = require("../../models/server-model");
 const userModel = require("../../models/user-model");
 const isLoggedIn = require('../../middlewares/is-Logged-In');
  
-router.get("/all", async (req, res) => {
+router.get("/all", isLoggedIn, async (req, res) => {
   try {
     console.log('In server/all API, req.cookies is - ', req.cookies);
     const allServers = await serverModel
