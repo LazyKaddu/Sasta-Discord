@@ -9,7 +9,7 @@ router.get("/all", isLoggedIn, async (req, res) => {
     // console.log('In server/all API, req.cookies is - ', req.cookies);
     const allServers = await serverModel
       .find()
-      .populate(["owner", "members", "channels"]);
+      .populate(["owner", "members"]);
 
     if (allServers) {
       return res.json({ allServers });
@@ -31,7 +31,7 @@ router.post('/create', isLoggedIn, async (req, res) => {
         members : [user._id],
         maxMembers : maxMembers
       });
-    server.populate(['owner', 'members', 'channels'])
+    server.populate(['owner', 'members'])
     user.joinedServers.push(server._id);
     await user.save();
 
