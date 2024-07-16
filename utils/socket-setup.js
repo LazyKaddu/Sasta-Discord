@@ -16,12 +16,12 @@ function initializeSocket(io) {
       try{
         const user = await userModel.findById(userId);
         const server = await channelModel.findById(serverId);
-        console.log(`${userId} joined channel ${serverId}`);
         const message = await server.message
         socket.emit("existing message", message);
       } catch {
         console.log('error in join group');
       }
+      console.log(`${userId} joined channel ${serverId}`);
 
 
     });
