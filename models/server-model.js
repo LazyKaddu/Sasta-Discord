@@ -5,7 +5,7 @@ const serverSchema = new mongoose.Schema({
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     maxMembers : { type: Number },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    message: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+    messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -41,21 +41,37 @@ router.post('/create', isLoggedIn, async (req, res) => {
   }
 })
 
-router.post('/join',isLoggedIn,async(req,res)=>{
+router.post('/join', isLoggedIn, async(req, res)=>{
   try{
     const {serverId} = req.body;
     const user = await userModel.findById(req.user._id);
     const server = await serverModel.findById(serverId);
-    server.members.push(req.user._id);
-    user.joinedServers.push(server._id);
-    await user.save();
-    await server.save();
 
-    res.json({success:'successfully joined'})
-
+    // if user has already joined, then remove
+    if (server.members.includes(user._id)) {
+      server.members.splice(user._id, 1);
+      user.joinedServers.splice(server._id, 1);
+      await user.save();
+      await server.save();
+      return res.json({failure : true})
+    }
+    // if user has not joined, add him
+    else {
+      server.members.push(user._id);
+      user.joinedServers.push(server._id);
+      await user.save();
+      await server.save();
+      return res.json({success : true})
+    }
   }catch(err){
-    res.json({ error: 'error occured' });
+    res.json({ error: true });
   }
+})
+
+router.get('/get-joined-status', isLoggedIn, async (req, res) => {
+  const { serverId } = req.query;
+  let server = await serverModel.findById(serverId);
+  return res.json({ is_joined : server.members.includes(req.user._id) })
 })
 
 module.exports = router;
