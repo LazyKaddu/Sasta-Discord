@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
     content: { type: String},
     sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    channel: { type: mongoose.Schema.Types.ObjectId, ref: 'Channel'},
+    server: { type: mongoose.Schema.Types.ObjectId, ref: 'Server'},
     createdAt: { type: Date, default: Date.now }
 });
 

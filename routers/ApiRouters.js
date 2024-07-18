@@ -8,10 +8,9 @@ const userRouter = require('./User-Routers/usersRouter');
 const contactRouter = require('./Contact-Routers/contact-api');
 
 
-router.use('/server', serverRouter);
-router.use('/channel', channelRouter);
-router.use('/message', messageRouter);
 router.use('/user', userRouter);
+router.use('/server', serverRouter);
+router.use('/message', messageRouter);
 router.use('/contacted',contactRouter);
 
 
