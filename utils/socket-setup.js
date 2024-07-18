@@ -1,49 +1,46 @@
 const { v4: uuidv4 } = require("uuid");
 const Message = require("../models/message-model");
 const userModel = require("../models/user-model");
-const channelModel = require('../models/channel-model');
+const serverModel = require("../models/server-model");
 const groups = {};
 
 function initializeSocket(io) {
   io.on("connection", (socket) => {
     console.log("user connected");
 
-    socket.on("join group", async ({ userId, channelId }) => {
-      socket.join(channelId);
+    socket.on("join group", async ({ userId, serverId }) => {
+      socket.join(serverId);
       socket.userId = userId;
-      socket.channelId = channelId;
+      socket.serverId = serverId;
 
       try{
         const user = await userModel.findById(userId);
-        const channel = await channelModel.findById(channelId);
+        const server = await channelModel.findById(serverId);
+        const message = await server.message
+        socket.emit("existing message", message);
       } catch {
         console.log('error in join group');
       }
+      console.log(`${userId} joined channel ${serverId}`);
 
-      console.log(`${userId} joined channel ${channelId}`);
-      const message = await Message
-        .find({ channel: channelId })
-      socket.emit("existing message", message);
+
     });
 
-    socket.on("leave group", async ({ userId, channelId }) => {
-      socket.leave(channelId);
-      try{
-        const channel = await channelModel.findById(channelId);
-      } catch {
-        const user = await userModel.findById(userId);
-        console.log(`${userId} left channel ${channelId}`);
-      }
+    socket.on("leave group", async ({ userId, serverId }) => {
+      socket.leave(serverId);
+      console.log(`${userId} left channel ${serverId}`);
     });
 
-    socket.on("chat message", async ({ userId, channelId, message }) => {
+    socket.on("chat message", async ({ userId, userName, serverId, message }) => {
+      const server = await serverModel.findById(serverId);
       const msg = await Message.create({
         content: message,
-        sender: userId,
-        channel: channelId,
+        sender: userName,
+        server: serverId,
       });
-      await msg.save();
-      io.to(channelId).emit("chat message", msg);
+      server.message.push(msg);
+      await server.save()
+      io.to(serverId).emit("chat message", msg);
     });
 
     socket.on("disconnect", () => {
