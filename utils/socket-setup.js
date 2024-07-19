@@ -17,7 +17,7 @@ function initializeSocket(io) {
         const user = await userModel.findById(userId);
         const server = await serverModel.findById(serverId);
         try {
-          const messages = await server.message.map((item) => Message.findById(item))
+          const messages = await (server.messages).map(async (item) => await Message.findById(item));
           console.log(messages);
           socket.emit("existing message", messages);
         } catch (e) {
@@ -25,7 +25,7 @@ function initializeSocket(io) {
           socket.emit("existing message", [])
         }
 
-        console.log(`${user} joined channel ${server}`);
+        console.log(`${user.username} joined channel ${server.name}`);
       } catch (e) {
         console.log('error in join group ' + e);
       }
@@ -36,20 +36,24 @@ function initializeSocket(io) {
     socket.on("leave group", async ({ userId, serverId }) => {
       socket.leave(serverId);
       console.log(`${userId} left channel ${serverId}`);
+      socket.emit('leave group',{});
     });
 
     socket.on("chat message", async ({ userId, userName, serverId, message }) => {
-      const server = await serverModel.findById(serverId);
-      console.log(serverId)
-      const msg = await Message.create({
-        content: message,
-        sender: userName,
-        server: serverId,
-      });
-      await msg.save();
-      server.message.push(msg);
-      await server.save()
-      io.to(serverId).emit("chat message", msg);
+      try{
+        const server = await serverModel.findById(serverId);
+        const msg = await Message.create({
+          content: message,
+          sender: userName,
+          server: serverId,
+        });
+        await msg.save();
+        server.messages.push(msg._id);
+        await server.save()
+        io.to(serverId).emit("chat message", msg);
+      }catch (e){
+        console.log(e);
+      }
     });
 
     socket.on("disconnect", () => {

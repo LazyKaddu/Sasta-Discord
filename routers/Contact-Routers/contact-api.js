@@ -9,7 +9,7 @@ router.post('/contact', async(req,res)=>{
         service: 'gmail',
         auth:{
             user: 'mehengadiscord@gmail.com',
-            pass: 'Nlts*i@thNkB#iehhAsgiaahi',
+            pass: process.env.PASSWORD,
         }
     });
     
