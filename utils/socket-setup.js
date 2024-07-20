@@ -28,11 +28,16 @@ function initializeSocket(io) {
     });
 
     socket.on("leave group", async ({ userId, serverId }) => {
-      socket.leave(serverId);
-      const user = await userModel.findById(userId);
-      const server = await serverModel.findById(serverId);
-      console.log(`${user.username} left channel ${server.name}`);
-      socket.emit('leave group', {});
+      try{
+        socket.leave(serverId);
+        const user = await userModel.findById(userId);
+        const server = await serverModel.findById(serverId);
+        console.log(`${user.username} left channel ${server.name}`);
+        socket.emit('leave group', {});
+
+      }catch (e){
+        console.log('error occured '+e);
+      }
     });
 
     socket.on("chat message", async ({ userId, userName, serverId, message }) => {
