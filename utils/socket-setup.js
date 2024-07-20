@@ -13,35 +13,48 @@ function initializeSocket(io) {
       socket.userId = userId;
       socket.serverId = serverId;
 
-      try{
+      try {
         const user = await userModel.findById(userId);
         const server = await serverModel.findById(serverId);
-        const message = await server.message
-        socket.emit("existing message", message);
-      } catch {
-        console.log('error in join group');
+
+        const messages = await Promise.all(server.messages.map(ids => Message.findById(ids)))
+        socket.emit("existing message", messages);
+        console.log(`${user.username} joined channel ${server.name}`);
+      } catch (e) {
+        console.log('error in join group ' + e);
       }
-      console.log(`${userId} joined channel ${serverId}`);
 
 
     });
 
     socket.on("leave group", async ({ userId, serverId }) => {
-      socket.leave(serverId);
-      console.log(`${userId} left channel ${serverId}`);
+      try{
+        socket.leave(serverId);
+        const user = await userModel.findById(userId);
+        const server = await serverModel.findById(serverId);
+        console.log(`${user.username} left channel ${server.name}`);
+        socket.emit('leave group', {});
+
+      }catch (e){
+        console.log('error occured '+e);
+      }
     });
 
     socket.on("chat message", async ({ userId, userName, serverId, message }) => {
-      console.log('serverid = ',serverId);
-      const server = await serverModel.findById(serverId);
-      const msg = await Message.create({
-        content: message,
-        sender: userName,
-        server: serverId,
-      });
-      server.messages.push(msg);
-      await server.save()
-      io.to(serverId).emit("chat message", msg);
+      try {
+        const server = await serverModel.findById(serverId);
+        const msg = await Message.create({
+          content: message,
+          sender: userName,
+          server: serverId,
+        });
+        await msg.save();
+        server.messages.push(msg._id);
+        await server.save()
+        io.to(serverId).emit("chat message", msg);
+      } catch (e) {
+        console.log(e);
+      }
     });
 
     socket.on("disconnect", () => {
