@@ -15,7 +15,7 @@ function initializeSocket(io) {
 
       try{
         const user = await userModel.findById(userId);
-        const server = await channelModel.findById(serverId);
+        const server = await serverModel.findById(serverId);
         const message = await server.message
         socket.emit("existing message", message);
       } catch {
@@ -32,13 +32,14 @@ function initializeSocket(io) {
     });
 
     socket.on("chat message", async ({ userId, userName, serverId, message }) => {
+      console.log('serverid = ',serverId);
       const server = await serverModel.findById(serverId);
       const msg = await Message.create({
         content: message,
         sender: userName,
         server: serverId,
       });
-      server.message.push(msg);
+      server.messages.push(msg);
       await server.save()
       io.to(serverId).emit("chat message", msg);
     });
