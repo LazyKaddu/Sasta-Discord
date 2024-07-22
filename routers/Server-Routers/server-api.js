@@ -3,7 +3,7 @@ const router = express.Router();
 const serverModel = require("../../models/server-model");
 const userModel = require("../../models/user-model");
 const isLoggedIn = require('../../middlewares/is-Logged-In');
- 
+
 router.get("/all", isLoggedIn, async (req, res) => {
   try {
     // console.log('In server/all API, req.cookies is - ', req.cookies);
@@ -26,24 +26,24 @@ router.post('/create', isLoggedIn, async (req, res) => {
     const user = await userModel.findById(req.user._id);
     const server = await serverModel
       .create({
-        name : name,
-        owner : user._id,
-        members : [user._id],
-        maxMembers : maxMembers
+        name: name,
+        owner: user._id,
+        members: [user._id],
+        maxMembers: maxMembers
       });
     server.populate(['owner', 'members'])
     user.joinedServers.push(server._id);
     await user.save();
 
-    res.json({ success: 'Server created', server});
-  }catch (err) {
-    res.json({ error: 'Error occured'});
+    res.json({ success: 'Server created', server });
+  } catch (err) {
+    res.json({ error: 'Error occured' });
   }
 })
 
-router.post('/join', isLoggedIn, async(req, res)=>{
-  try{
-    const {serverId} = req.body;
+router.post('/join', isLoggedIn, async (req, res) => {
+  try {
+    const { serverId } = req.body;
     const user = await userModel.findById(req.user._id);
     const server = await serverModel.findById(serverId);
 
@@ -53,7 +53,7 @@ router.post('/join', isLoggedIn, async(req, res)=>{
       user.joinedServers.splice(server._id, 1);
       await user.save();
       await server.save();
-      return res.json({failure : true})
+      return res.json({ failure: true })
     }
     // if user has not joined, add him
     else {
@@ -61,9 +61,9 @@ router.post('/join', isLoggedIn, async(req, res)=>{
       user.joinedServers.push(server._id);
       await user.save();
       await server.save();
-      return res.json({success : true})
+      return res.json({ success: true })
     }
-  }catch(err){
+  } catch (err) {
     res.json({ error: true });
   }
 })
@@ -71,7 +71,32 @@ router.post('/join', isLoggedIn, async(req, res)=>{
 router.get('/get-joined-status', isLoggedIn, async (req, res) => {
   const { serverId } = req.query;
   let server = await serverModel.findById(serverId);
-  return res.json({ is_joined : server.members.includes(req.user._id) })
+  return res.json({ is_joined: server.members.includes(req.user._id) })
+})
+
+
+router.get('/delete', isLoggedIn, async (req, res) => {
+  const { serverId } = req.query;
+  try {
+
+    const server = await serverModel.findById(serverId);
+
+    if (!server) {
+      return res.status(404).json({ error: 'Server not found' });
+    }
+
+    await Promise.all(server.members.map(async (id) => {
+      await userModel.updateOne({ _id: id }, { $pull: { joinedServers: serverId } });
+    }));
+    await serverModel.deleteOne({ _id: serverId });
+
+    console.log(`${serverId} has been deleted successfully!`);
+    return res.json({ success: "Server deleted" });
+    
+  } catch (e) {
+    console.error("Error occurred: " + e);
+    return res.status(500).json({ error: 'Error occurred' });
+  }
 })
 
 module.exports = router;
