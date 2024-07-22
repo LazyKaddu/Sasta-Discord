@@ -15,47 +15,50 @@ function initializeSocket(io) {
 
       try {
         const user = await userModel.findById(userId);
-        const server = await serverModel.findById(serverId);
+        const server = await serverModel
+          .findById(serverId)
+          .populate("messages");
+          
+        const messages = server.messages
 
-        const messages = await Promise.all(server.messages.map(ids => Message.findById(ids)))
         socket.emit("existing message", messages);
         console.log(`${user.username} joined channel ${server.name}`);
       } catch (e) {
-        console.log('error in join group ' + e);
+        console.log("error in join group " + e);
       }
-
-
     });
 
     socket.on("leave group", async ({ userId, serverId }) => {
-      try{
+      try {
         socket.leave(serverId);
         const user = await userModel.findById(userId);
         const server = await serverModel.findById(serverId);
         console.log(`${user.username} left channel ${server.name}`);
-        socket.emit('leave group', {});
-
-      }catch (e){
-        console.log('error occured '+e);
-      }
-    });
-
-    socket.on("chat message", async ({ userId, userName, serverId, message }) => {
-      try {
-        const server = await serverModel.findById(serverId);
-        const msg = await Message.create({
-          content: message,
-          sender: userName,
-          server: serverId,
-        });
-        await msg.save();
-        server.messages.push(msg._id);
-        await server.save()
-        io.to(serverId).emit("chat message", msg);
+        socket.emit("leave group", {});
       } catch (e) {
-        console.log(e);
+        console.log("error occured " + e);
       }
     });
+
+    socket.on(
+      "chat message",
+      async ({ userId, userName, serverId, message }) => {
+        try {
+          const server = await serverModel.findById(serverId);
+          const msg = await Message.create({
+            content: message,
+            sender: userName,
+            server: serverId,
+          });
+          await msg.save();
+          server.messages.push(msg._id);
+          await server.save();
+          io.to(serverId).emit("chat message", msg);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    );
 
     socket.on("disconnect", () => {
       console.log("user disconnect");
